@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"github.com/outcastgeek/kamworks/utils"
+	"github.com/KAMESTERY/middlewarekam/utils"
 	"google.golang.org/grpc"
 )
 
