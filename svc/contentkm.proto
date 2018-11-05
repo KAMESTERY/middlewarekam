@@ -33,22 +33,22 @@ message Document {
     string slug = 2;
     bool publish = 3;
     string body = 4;
-    enum Language {
+    enum Langue {
         ENGLISH = 0;
         FRENCH = 1;
         PORTUGUESE = 2;
         SPANISH = 3;
         SWAHILI = 4;
     }
-    Language language = 5;
-    enum Importance {
+    Langue langue = 5;
+    enum Niveau {
         LOW = 0;
         MEDIUM = 1;
         HIGH = 2;
         CRITICAL = 3;
     }
-    Importance importance = 6;
-    enum MediaFilter {
+    Niveau niveau = 6;
+    enum FiltreVisuel {
         IG_WILLOW = 0;
         IG_WALDEN = 1;
         IG_VALENCIA = 2;
@@ -68,19 +68,19 @@ message Document {
         IG_AMARO = 16;
         IG_1977 = 17;
     }
-    MediaFilter media_filter = 7;
+    FiltreVisuel filtre_visuel = 7;
     MetaData metadata = 8;
 }
 
 message Media {
     string name = 1;
-    enum Type {
+    enum Categorie {
         AUDIO = 0;
         DOCUMENT = 1;
         IMAGE = 2;
         VIDEO = 3;
     }
-    Type type = 2;
+    Categorie categorie = 2;
     string file_url = 3;
     MetaData metadata = 4;
 }
