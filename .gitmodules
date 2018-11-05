@@ -1,0 +1,3 @@
+[submodule "svc"]
+	path = svc
+	url = https://github.com/KAMESTERY/contractskam.git
