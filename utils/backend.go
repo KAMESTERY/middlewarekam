@@ -3,13 +3,13 @@ package utils
 import "os"
 
 var (
-	backendUrl = func() string {
-		beUrl := os.Getenv("BACKEND")
-		if len(beUrl) == 0 {
-			beUrl = "localhost:9099"
+	rpcBackendUrl = func() string {
+		rpcBeUrl := os.Getenv("RPC_BACKEND")
+		if len(rpcBeUrl) == 0 {
+			rpcBeUrl = "localhost:9099"
 		}
-		return beUrl
+		return rpcBeUrl
 	}
 
-	BackendRPC = backendUrl()
+	BackendRPC = rpcBackendUrl()
 )
