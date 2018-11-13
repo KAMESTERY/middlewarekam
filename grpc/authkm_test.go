@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	pb "github.com/outcastgeek/kamworks/grpc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -39,10 +38,10 @@ func (ac *AuthClientTestSuite) TestLogin() {
 	}
 	defer grpcConn.Close()
 
-	authKamClient := pb.NewAuthKamClient(grpcConn)
+	authKamClient := NewAuthKamClient(grpcConn)
 
 	ctx := context.Background()
-	userCredentialsReq := &pb.UserCredentialsReq{
+	userCredentialsReq := &UserCredentialsReq{
 		Email:    "gggg@gggg.ggg",
 		Password: "gggggggg",
 	}

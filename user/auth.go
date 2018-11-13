@@ -1,12 +1,10 @@
 package user
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/KAMESTERY/middlewarekam/utils"
 	"net/http"
-	"strings"
 )
 
 const (
@@ -52,14 +50,14 @@ func Authenticate(ctx context.Context, email, password string) (authClaims AuthC
 		email,
 		password,
 	)
-	req, err := http.NewRequest("POST", utils.BackendGQL, newQuery(qryData))
+	req, err := http.NewRequest("POST", utils.BackendGQL, utils.NewQuery(qryData))
 	if err != nil {
 		user_logger.Fatalf("AUTH_ERROR:::: %+v", err)
 		return
 	}
-	req.Header.Set(CONTEN_TYPE, APPLICATION_JSON)
+	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
 
-	resp, err := processRequest(ctx, req)
+	resp, err := utils.ProcessRequest(ctx, req)
 	if err == nil {
 		resp_struct := &struct {
 			Data struct {
@@ -81,15 +79,15 @@ func Enroll(ctx context.Context, username, email, password string) (ok bool) {
 		username,
 		password,
 	)
-	req, err := http.NewRequest("POST", utils.BackendGQL, newQuery(qryData))
+	req, err := http.NewRequest("POST", utils.BackendGQL, utils.NewQuery(qryData))
 	if err != nil {
 		user_logger.Fatalf("AUTH_ERROR:::: %+v", err)
 		ok = false
 		return
 	}
-	req.Header.Set(CONTEN_TYPE, APPLICATION_JSON)
+	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
 
-	resp, err := processRequest(ctx, req)
+	resp, err := utils.ProcessRequest(ctx, req)
 	if err == nil {
 		resp_struct := &struct {
 			Data struct {
@@ -102,26 +100,4 @@ func Enroll(ctx context.Context, username, email, password string) (ok bool) {
 		}
 	}
 	return
-}
-
-func processRequest(ctx context.Context, r *http.Request) (resp *http.Response, err error) {
-	c := &http.Client{
-		Timeout: HTTP_CLIENT_TIMEOUT,
-	}
-	req := r.WithContext(ctx)
-	resp, err = c.Do(req)
-	return
-}
-
-func newQuery(queryString string) *strings.Reader {
-	buffer := new(bytes.Buffer)
-	query := struct {
-		Query string `json:"query"`
-	}{
-		Query: queryString,
-	}
-	utils.EncodeJson(buffer, query)
-	json := buffer.String()
-	user_logger.Debugf("GQL_QUERY:::: %s", json)
-	return strings.NewReader(json)
 }
