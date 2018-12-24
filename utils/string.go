@@ -2,8 +2,8 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Machiel/slugify"
+	"strings"
 )
 
 func Slugify(title string) (slug string) {
@@ -22,8 +22,13 @@ func Truncate(s string) string {
 	return s
 }
 
+func ToNamespace(chunks ...string) (ns string) {
+	ns = strings.Join(chunks, NS_SEP)
+	return
+}
+
 func IdentifyDocument(identifier, title string) string {
-	documentId := fmt.Sprintf("%s.%s.%s", Namespace, identifier, Slugify(title))
+	documentId := ToNamespace(Namespace, identifier, Slugify(title))
 	return documentId
 }
 
