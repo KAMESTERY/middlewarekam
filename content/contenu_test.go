@@ -4,6 +4,7 @@ package content
 import (
 	"context"
 	"github.com/KAMESTERY/middlewarekam/auth"
+	"github.com/KAMESTERY/middlewarekam/utils"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -45,6 +46,7 @@ func (ats *ContentTestSuite) TestCreate() {
 	auth_claims_resp, err := authKamClient.Authenticate(context.Background(), &user_creds_req)
 
 	token := auth_claims_resp.Token
+	category := "a cool category"
 	content := Content{
 		[]*Document{
 			&Document{
@@ -68,7 +70,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 				Metadata: &MetaData{
 					&Identification{
 						auth_claims_resp.Email,
-						"sljhoieoqsdowioheq",
+						category,
 						[]string{"some", "cool", "things"},
 					},
 					&TimeStamps{},
@@ -96,7 +98,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 				Metadata: &MetaData{
 					&Identification{
 						auth_claims_resp.Email,
-						"vvgggggggasdgds",
+						category,
 						[]string{"some", "ok", "chose"},
 					},
 					&TimeStamps{},
@@ -118,11 +120,58 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 
 	assert.True(err == nil)
 	assert.True(len(retrieved_content.Documents) > 0)
-	assert.True(len(retrieved_content.Documents) > 0)
+	for _, doc := range retrieved_content.Documents {
+		assert.True(len(doc.Body) > 0)
+	}
+
+	qry1 := NewQuery(utils.CategorizeDocument(category))
+	queried_content1, err := ats.Query(context.Background(), auth_claims_resp.Email, token, qry1)
+
+	assert.True(err == nil)
+	assert.True(len(queried_content1.Documents) > 0)
+	for _, doc := range queried_content1.Documents {
+		assert.True(len(doc.Body) > 0)
+	}
+
+	limit := int32(1)
+	qry2 := NewQuery(utils.CategorizeDocument(category)).
+		WithTags("cool", "chose").
+		WithLimit(limit)
+	queried_content2, err := ats.Query(context.Background(), auth_claims_resp.Email, token, qry2)
+
+	assert.True(err == nil)
+	assert.True(len(queried_content2.Documents) > 0)
+	assert.True(len(queried_content2.Documents) == int(limit))
+	for _, doc := range queried_content2.Documents {
+		assert.True(len(doc.Body) > 0)
+	}
+
+	queried_content3, err := ats.Latest(context.Background(), category, 0)
+
+	assert.True(err == nil)
+	assert.True(len(queried_content3.Documents) == 2)
+	for _, doc := range queried_content3.Documents {
+		assert.True(len(doc.Body) > 0)
+	}
+
+	queried_content4, err := ats.ByTag(context.Background(), category, 0, "cool", "chose")
+
+	assert.True(err == nil)
+	assert.True(len(queried_content4.Documents) == 2)
+	for _, doc := range queried_content4.Documents {
+		assert.True(len(doc.Body) > 0)
+	}
+
+	queried_content_one_document, err := ats.One(context.Background(), content_handles.ItemIds[1].Identifier)
+
+	assert.True(err == nil)
+	assert.True(len(queried_content_one_document.Documents) == 1)
+	for _, doc := range queried_content_one_document.Documents {
+		assert.True(len(doc.Body) > 0)
+	}
 
 	deleted_content_handles, err := ats.Delete(context.Background(), auth_claims_resp.Email, token, content_handles)
 
 	assert.True(err == nil)
 	assert.True(deleted_content_handles.Message == "")
-
 }

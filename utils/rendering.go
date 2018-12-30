@@ -9,10 +9,14 @@ var utilsrendering_logger = NewLogger("utilsrendering")
 
 var (
 	tpl = template.New("").Funcs(template.FuncMap{
-		"Slugify":          Slugify,
-		"Truncate":         Truncate,
-		"IdentifyDocument": IdentifyDocument,
-		"Stringigy":        Stringigy,
+		"Slugify":             Slugify,
+		"Truncate":            Truncate,
+		"IdentifyDocument":    IdentifyDocument,
+		"ToQualifiedCategory": ToQualifiedCategory,
+		"EncodeBase64":        EncodeBase64,
+		"ToNamespace":         ToNamespace,
+		"CategorizeDocument":  CategorizeDocument,
+		"Stringify":           Stringify,
 	})
 )
 

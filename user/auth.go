@@ -55,7 +55,7 @@ func Authenticate(ctx context.Context, email, password string) (authClaims AuthC
 		user_logger.Fatalf("AUTH_ERROR:::: %+v", err)
 		return
 	}
-	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
+	req.Header.Set(utils.CONTENT_TYPE, utils.APPLICATION_JSON)
 
 	resp, err := utils.ProcessRequest(ctx, req)
 	if err == nil {
@@ -85,7 +85,7 @@ func Enroll(ctx context.Context, username, email, password string) (ok bool) {
 		ok = false
 		return
 	}
-	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
+	req.Header.Set(utils.CONTENT_TYPE, utils.APPLICATION_JSON)
 
 	resp, err := utils.ProcessRequest(ctx, req)
 	if err == nil {

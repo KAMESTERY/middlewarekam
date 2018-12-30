@@ -1,6 +1,10 @@
 package content
 
 const (
+	UPPER_LIMIT int32 = 100
+)
+
+const (
 	CONTENT_INPUT = `
 {{define "ContentInput"}}
 mutation CreateDocuments {
@@ -10,22 +14,24 @@ mutation CreateDocuments {
 		documents: [
 			{{range .Content.Documents}}
 			{
-      			name: "{{IdentifyDocument .Metadata.Identification.Identifier .Title }}",
+      			name: "{{CategorizeDocument .Metadata.Identification.Identifier }}",
 				userId: "{{ .Metadata.Identification.UserId }}",
 				documentId: "{{IdentifyDocument .Metadata.Identification.Identifier .Title }}",
       			data: [
         			["title", "{{ .Title }}"],
         			["slug", "{{Slugify .Title}}"],
         			["publish", "{{ .Publish }}"],
-        			["body", {{ .Body | Stringigy }}],
+        			["body", "{{ .Body | EncodeBase64 }}"],
         			["langue", "{{ .Langue }}"],
         			["niveau", "{{ .Niveau }}"],
         			["filtre_visuel", "{{ .FiltreVisuel }}"],
-        			["identifier", "{{ .Metadata.Identification.Identifier }}"],
-					{{range .Metadata.Identification.Tags}}
-					["{{.}}", "{{.}}"],
+        			["identifier", "{{ .Metadata.Identification.Identifier }}"]
+      			],
+                tags: [
+                    {{range .Metadata.Identification.Tags}}
+					"{{.}}",
 					{{end}}
-      			]
+                ]
 			},
 			{{end}}
 		]
@@ -42,26 +48,116 @@ mutation UpdateDocuments {
 		documents: [
 			{{range .Content.Documents}}
 			{
-      			name: "{{IdentifyDocument .Metadata.Identification.Identifier .Title }}",
+      			name: "{{CategorizeDocument .Metadata.Identification.Identifier }}",
 				userId: "{{ .Metadata.Identification.UserId }}",
 				documentId: "{{IdentifyDocument .Metadata.Identification.Identifier .Title }}",
       			data: [
         			["title", "{{ .Title }}"],
         			["slug", "{{Slugify .Title}}"],
         			["publish", "{{ .Publish }}"],
-        			["body", "{{ .Body }}"],
+        			["body", "{{ .Body | EncodeBase64 }}"],
         			["langue", "{{ .Langue }}"],
         			["niveau", "{{ .Niveau }}"],
         			["filtre_visuel", "{{ .FiltreVisuel }}"],
-        			["identifier", "{{ .Metadata.Identification.Identifier }}"],
-					{{range .Metadata.Identification.Tags}}
-					["{{.}}", "{{.}}"],
+        			["identifier", "{{ .Metadata.Identification.Identifier }}"]
+      			],
+                tags: [
+                    {{range .Metadata.Identification.Tags}}
+					"{{.}}",
 					{{end}}
-      			]
+                ]
 			},
 			{{end}}
 		]
 	)
+}
+{{end}}
+`
+	QUERY_OUTPUT = `
+{{define "QueryOutput"}}
+query QueryDocuments {
+	documents: queryLesChoses(
+		userId: "{{ .UserId }}",
+		token: "{{ .Token }}",
+        {{ $limit := .Query.Limit }}{{ if gt $limit 0 }}
+        limit: {{ $limit }},
+        {{end}}
+        attrNames: [
+          ["#n" "Name"]
+          {{ $length := len .Query.Tags }} {{ if gt $length 0 }}
+            ["#tags" "Tags"]
+          {{end}}
+        ], 
+        {{ $length := len .Query.Tags }} {{ if gt $length 0 }}
+          filterExpr: "{{range $index, $tag := .Query.Tags}} {{if $index}}OR{{end}} contains(#tags, :Tag_{{$tag}}) {{end}}"
+        {{end}}
+        keyConditionExpr: "#n = :cat",
+        data: [
+			[":cat" "{{ .Query.Partition }}"]
+            {{range .Query.Tags}}
+            [":Tag_{{.}}" "{{.}}"]
+            {{end}}
+		]
+	){
+    thing {
+      name
+      userId
+      thingId
+      version
+      score
+      createdAt
+      updatedAt
+    }
+    data {
+      dataId
+      thingId
+      key
+      value
+    }
+  }
+}
+{{end}}
+`
+	QUERY_PUBLIC_OUTPUT = `
+{{define "QueryPublicOutput"}}
+query QueryPublicDocuments {
+	documents: queryPublicChoses(
+        {{ $limit := .Query.Limit }}{{ if gt $limit 0 }}
+        limit: {{ $limit }},
+        {{end}}
+        attrNames: [
+          ["#n" "Name"]
+          {{ $length := len .Query.Tags }} {{ if gt $length 0 }}
+            ["#tags" "Tags"]
+          {{end}}
+        ], 
+        {{ $length := len .Query.Tags }} {{ if gt $length 0 }}
+          filterExpr: "{{range $index, $tag := .Query.Tags}} {{if $index}}OR{{end}} contains(#tags, :Tag_{{$tag}}) {{end}}"
+        {{end}}
+        keyConditionExpr: "#n = :cat",
+        data: [
+			[":cat" "{{ .Query.Partition }}"]
+            {{range .Query.Tags}}
+            [":Tag_{{.}}" "{{.}}"]
+            {{end}}
+		]
+	){
+    thing {
+      name
+      userId
+      thingId
+      version
+      score
+      createdAt
+      updatedAt
+    }
+    data {
+      dataId
+      thingId
+      key
+      value
+    }
+  }
 }
 {{end}}
 `
@@ -71,9 +167,38 @@ query RetrieveDocuments {
 	documents: getLesChoses(
 		userId: "{{ .UserId }}",
 		token: "{{ .Token }}",
-		names: [
+        data: [
 			{{range .ContentHandles.ItemIds}}
-			"{{ .Identifier }}",
+			["{{ToQualifiedCategory .Identifier }}", "{{ .Identifier }}"],
+			{{end}}
+		]
+	){
+    thing {
+      name
+      userId
+      thingId
+      version
+      score
+      createdAt
+      updatedAt
+    }
+    data {
+      dataId
+      thingId
+      key
+      value
+    }
+  }
+}
+{{end}}
+`
+	CONTENT_PUBLIC_OUTPUT = `
+{{define "ContentPublicOutput"}}
+query RetrievePublicDocuments {
+	documents: getPublicChoses(
+        data: [
+			{{range .ContentHandles.ItemIds}}
+			["{{ToQualifiedCategory .Identifier }}", "{{ .Identifier }}"],
 			{{end}}
 		]
 	){
@@ -102,9 +227,9 @@ mutation DeleteDocuments {
 	handles: deleteDocuments(
 		userId: "{{ .UserId }}",
 		token: "{{ .Token }}",
-		documentIds: [
+		data: [
 			{{range .ContentHandles.ItemIds}}
-			"{{ .Identifier }}",
+			["{{ToQualifiedCategory .Identifier }}", "{{ .Identifier }}"],
 			{{end}}
 		]
 	)

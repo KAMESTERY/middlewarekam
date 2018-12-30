@@ -150,7 +150,7 @@ func (c *authKamClient) Authenticate(ctx context.Context, in *UserCredentialsReq
 		authauth_logger.Fatalf("AUTH_ERROR:::: %+v", err)
 		return nil, err
 	}
-	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
+	req.Header.Set(utils.CONTENT_TYPE, utils.APPLICATION_JSON)
 
 	resp, err := utils.ProcessRequest(ctx, req)
 	if err == nil {
@@ -179,7 +179,7 @@ func (c *authKamClient) Enroll(ctx context.Context, in *UserEnrollReq) (*EnrollS
 		authauth_logger.Fatalf("AUTH_ERROR:::: %+v", err)
 		return nil, err
 	}
-	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
+	req.Header.Set(utils.CONTENT_TYPE, utils.APPLICATION_JSON)
 
 	resp, err := utils.ProcessRequest(ctx, req)
 	if err == nil {

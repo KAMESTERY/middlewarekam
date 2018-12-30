@@ -5,8 +5,7 @@ import (
 	"github.com/KAMESTERY/middlewarekam/utils"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"net/http"
-	"strconv"
+	"time"
 )
 
 var contentcontenu_logger = utils.NewLogger("contentcontenu")
@@ -375,6 +374,50 @@ func (m *TimeStamps) GetUpdated() *timestamp.Timestamp {
 	return nil
 }
 
+type Query struct {
+	Partition string
+	User string
+	Created time.Time
+	Updated time.Time
+	Tags []string
+	Limit int32
+}
+
+func NewQuery(partition string) *Query {
+	return &Query{
+		Partition: partition,
+	}
+}
+
+func (q *Query) WithUser(user string) *Query {
+	q.User = user
+	return q
+}
+
+func (q *Query) WithCreated(createdAt time.Time) *Query {
+	q.Created = createdAt
+	return q
+}
+
+func (q *Query) WithUpdated(updatedAt time.Time) *Query {
+	q.Updated = updatedAt
+	return q
+}
+
+func (q *Query) WithTags(tags ...string) *Query {
+	q.Tags = tags
+	return q
+}
+
+func (q *Query) WithLimit(limit int32) *Query {
+	if limit < 1 || limit > UPPER_LIMIT {
+		q.Limit = UPPER_LIMIT
+		return q
+	}
+	q.Limit = limit
+	return q
+}
+
 // ContentKamClient is the client API for ContentKam service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
@@ -385,8 +428,16 @@ type ContentKamClient interface {
 	Update(ctx context.Context, userId, token string, in *Content) (*ContentHandles, error)
 	// Get
 	Get(ctx context.Context, userId, token string, in *ContentHandles) (*Content, error)
+	// One
+	One(ctx context.Context, identifier string) (*Content, error)
 	// Delete
 	Delete(ctx context.Context, userId, token string, in *ContentHandles) (*ContentHandles, error)
+	// Query
+	Query(ctx context.Context, userId, token string, in *Query) (*Content, error)
+	// Latest
+	Latest(ctx context.Context, topic string, limit int32) (*Content, error)
+	// ByTag
+	ByTag(ctx context.Context, topic string, limit int32, tags ...string) (*Content, error)
 }
 
 type contentKamClient struct{}
@@ -405,7 +456,7 @@ func (c *contentKamClient) Create(ctx context.Context, userId, token string, in 
 		token,
 		*in,
 	}
-	return c.processPayload(ctx, CONTENT_INPUT, "ContentInput", userId, token, payload)
+	return c.processPayload(ctx, CONTENT_INPUT, "ContentInput", userId, payload)
 }
 
 func (c *contentKamClient) Update(ctx context.Context, userId, token string, in *Content) (*ContentHandles, error) {
@@ -418,80 +469,70 @@ func (c *contentKamClient) Update(ctx context.Context, userId, token string, in 
 		token,
 		*in,
 	}
-	return c.processPayload(ctx, CONTENT_UPDATE_INPUT, "ContentUpdateInput", userId, token, payload)
+	return c.processPayload(ctx, CONTENT_UPDATE_INPUT, "ContentUpdateInput", userId, payload)
+}
+
+func (c *contentKamClient) Query(ctx context.Context, userId, token string, in *Query) (*Content, error) {
+	payload := struct {
+		UserId         string
+		Token          string
+		Query Query
+	}{
+		userId,
+		token,
+		*in,
+	}
+	return c.processQuery(ctx, QUERY_OUTPUT, "QueryOutput", payload)
+}
+
+func (c *contentKamClient) Latest(ctx context.Context, topic string, limit int32) (*Content, error) {
+	query := NewQuery(utils.CategorizeDocument(topic)).
+		WithLimit(limit)
+	payload := struct {
+		Query Query
+	}{
+		*query,
+	}
+	return c.processQuery(ctx, QUERY_PUBLIC_OUTPUT, "QueryPublicOutput", payload)
+}
+
+func (c *contentKamClient) ByTag(ctx context.Context, topic string, limit int32, tags ...string) (*Content, error) {
+	query := NewQuery(utils.CategorizeDocument(topic)).
+		WithTags(tags...)
+	payload := struct {
+		Query Query
+	}{
+		*query,
+	}
+	return c.processQuery(ctx, QUERY_PUBLIC_OUTPUT, "QueryPublicOutput", payload)
 }
 
 func (c *contentKamClient) Get(ctx context.Context, userId, token string, in *ContentHandles) (*Content, error) {
-	out := new(Content)
-	qryData := utils.RenderString(
-		CONTENT_OUTPUT,
-		"ContentOutput",
-		struct {
-			UserId         string
-			Token          string
-			ContentHandles ContentHandles
-		}{
-			userId,
-			token,
-			*in,
-		},
-	)
-	req, err := http.NewRequest("POST", utils.BackendGQL, utils.NewQuery(qryData))
-	if err != nil {
-		contentcontenu_logger.Fatalf("CONTENT_GET_ERROR:::: %+v", err)
-		return nil, err
+	payload := struct {
+		UserId         string
+		Token          string
+		ContentHandles ContentHandles
+	}{
+		userId,
+		token,
+		*in,
 	}
-	req.Header.Set(utils.CONTEN_TYPE, utils.APPLICATION_JSON)
+	return c.processQuery(ctx, CONTENT_OUTPUT, "ContentOutput", payload)
+}
 
-	resp, err := utils.ProcessRequest(ctx, req)
-	if err == nil {
-		resp_struct := &struct {
-			Data struct {
-				Items []thingOutput `json:"documents"`
-			} `json:"data"`
-		}{}
-		utils.DecodeJson(resp.Body, resp_struct)
-		for _, item := range resp_struct.Data.Items {
-			doc := &Document{
-				Slug: item.Thing.Name,
-				Metadata: &MetaData{
-					Identification: &Identification{
-						Identifier: item.Thing.ThingId,
-						UserId:     item.Thing.UserId,
-					},
-					Timestamps: &TimeStamps{},
+func (c *contentKamClient) One(ctx context.Context, identifier string) (*Content, error) {
+	payload := struct {
+		ContentHandles ContentHandles
+	}{
+		ContentHandles{
+			ItemIds: []*Identification {
+				{
+					Identifier: identifier,
 				},
-			}
-			for _, data := range item.Data {
-				if data.Key == "body" {
-					doc.Body = data.Value
-				} else if data.Key == "filtre_visuel" {
-					i, _ := strconv.ParseInt(data.Value, 10, 32) // TODO: Revisit this!!!!
-					doc.FiltreVisuel = Document_FiltreVisuel(i)
-				} else if data.Key == "langue" {
-					i, _ := strconv.ParseInt(data.Value, 10, 32) // TODO: Revisit this!!!!
-					doc.Langue = Document_Langue(i)
-				} else if data.Key == "niveau" {
-					i, _ := strconv.ParseInt(data.Value, 10, 32) // TODO: Revisit this!!!!
-					doc.Niveau = Document_Niveau(i)
-				} else if data.Key == "publish" {
-					p, _ := strconv.ParseBool(data.Value)
-					doc.Publish = p
-				} else if data.Key == "slug" {
-					doc.Slug = data.Value
-				} else if data.Key == "title" {
-					doc.Title = data.Value
-				} else if data.Key == "identifier" {
-					doc.Metadata.Identification.Identifier = data.Value
-				} else {
-					doc.Metadata.Identification.Tags = append(doc.Metadata.Identification.Tags, data.Value)
-				}
-			}
-			out.Documents = append(out.Documents, doc)
-		}
+			},
+		},
 	}
-
-	return out, nil
+	return c.processQuery(ctx, CONTENT_PUBLIC_OUTPUT, "ContentPublicOutput", payload)
 }
 
 func (c *contentKamClient) Delete(ctx context.Context, userId, token string, in *ContentHandles) (*ContentHandles, error) {
@@ -504,7 +545,7 @@ func (c *contentKamClient) Delete(ctx context.Context, userId, token string, in 
 		token,
 		*in,
 	}
-	return c.processPayload(ctx, CONTENT_DELETE_INPUT, "ContentDeleteInput", userId, token, payload)
+	return c.processPayload(ctx, CONTENT_DELETE_INPUT, "ContentDeleteInput", userId, payload)
 }
 
 // Incoming
