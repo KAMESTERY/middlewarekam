@@ -237,3 +237,20 @@ mutation DeleteDocuments {
 {{end}}
 `
 )
+
+const (
+	DEVELOPMENT_TOPIC = "development"
+	HISTORY_TOPIC     = "history"
+	AFRICA_TOPIC      = "africa"
+	LANGUAGE_TOPIC    = "language"
+	EDUCATION_TOPIC   = "education"
+)
+
+var TOPICS = [...]string{
+	DEVELOPMENT_TOPIC,
+	HISTORY_TOPIC, 
+	AFRICA_TOPIC,
+	LANGUAGE_TOPIC,
+	EDUCATION_TOPIC,
+}
+
