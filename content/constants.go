@@ -237,3 +237,19 @@ mutation DeleteDocuments {
 {{end}}
 `
 )
+
+const (
+	DEVELOPMENT_CATEGORY = "development"
+	HISTORY_CATEGORY     = "history"
+	AFRICA_CATEGORY      = "africa"
+	LANGUAGE_CATEGORY    = "language"
+	EDUCATION_CATEGORY   = "education"
+)
+
+var TOPICS = [...]string{
+	DEVELOPMENT_CATEGORY,
+	HISTORY_CATEGORY, 
+	AFRICA_CATEGORY,
+	LANGUAGE_CATEGORY,
+	EDUCATION_CATEGORY,
+}
