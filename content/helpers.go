@@ -73,6 +73,7 @@ func (c *contentKamClient) processQuery(ctx context.Context, tmpl, name string, 
 				Identification: &Identification{
 					Identifier: item.Thing.ThingId,
 					UserId:     item.Thing.UserId,
+					Tags: item.Thing.Tags,
 				},
 				Timestamps: &TimeStamps{},
 			},

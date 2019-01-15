@@ -105,6 +105,7 @@ query QueryDocuments {
       thingId
       version
       score
+      tags
       createdAt
       updatedAt
     }
@@ -148,6 +149,7 @@ query QueryPublicDocuments {
       thingId
       version
       score
+      tags
       createdAt
       updatedAt
     }
@@ -179,6 +181,7 @@ query RetrieveDocuments {
       thingId
       version
       score
+      tags
       createdAt
       updatedAt
     }
@@ -208,6 +211,7 @@ query RetrievePublicDocuments {
       thingId
       version
       score
+      tags
       createdAt
       updatedAt
     }

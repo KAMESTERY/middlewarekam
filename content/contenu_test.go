@@ -47,6 +47,10 @@ func (ats *ContentTestSuite) TestCreate() {
 
 	token := auth_claims_resp.Token
 	category := "a cool category"
+
+	a_tags := []string{"some", "cool", "things"}
+	b_tags := []string{"some", "ok", "chose"}
+
 	content := Content{
 		[]*Document{
 			&Document{
@@ -71,7 +75,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 					&Identification{
 						auth_claims_resp.Email,
 						category,
-						[]string{"some", "cool", "things"},
+						a_tags,
 					},
 					&TimeStamps{},
 					make(map[string]*any.Any),
@@ -99,7 +103,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 					&Identification{
 						auth_claims_resp.Email,
 						category,
-						[]string{"some", "ok", "chose"},
+						b_tags,
 					},
 					&TimeStamps{},
 					make(map[string]*any.Any),
@@ -122,6 +126,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(len(retrieved_content.Documents) > 0)
 	for _, doc := range retrieved_content.Documents {
 		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
 	qry1 := NewQuery(utils.CategorizeDocument(category))
@@ -131,6 +136,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(len(queried_content1.Documents) > 0)
 	for _, doc := range queried_content1.Documents {
 		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
 	limit := int32(1)
@@ -144,6 +150,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(len(queried_content2.Documents) == int(limit))
 	for _, doc := range queried_content2.Documents {
 		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
 	queried_content3, err := ats.Latest(context.Background(), category, 0)
@@ -152,6 +159,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(len(queried_content3.Documents) == 2)
 	for _, doc := range queried_content3.Documents {
 		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
 	queried_content4, err := ats.ByTag(context.Background(), category, 0, "cool", "chose")
@@ -160,6 +168,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(len(queried_content4.Documents) == 2)
 	for _, doc := range queried_content4.Documents {
 		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
 	queried_content_one_document, err := ats.One(context.Background(), content_handles.ItemIds[1].Identifier)
@@ -168,6 +177,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(len(queried_content_one_document.Documents) == 1)
 	for _, doc := range queried_content_one_document.Documents {
 		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
 	deleted_content_handles, err := ats.Delete(context.Background(), auth_claims_resp.Email, token, content_handles)

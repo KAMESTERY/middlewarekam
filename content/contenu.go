@@ -558,7 +558,7 @@ type thing struct {
 	Score     int32    `json:"score,omitempty"`
 	CreatedAt string   `json:"createdAt,omitempty"`
 	UpdatedAt string   `json:"updatedAt,omitempty"`
-	DataIds   []string `json:"dataIds,omitempty"`
+	Tags      []string `json:"tags,omitempty"`
 }
 
 type data struct {
