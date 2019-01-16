@@ -29,7 +29,7 @@ mutation CreateDocuments {
       			],
                 tags: [
                     {{range .Metadata.Identification.Tags}}
-					"{{.}}",
+					"{{ Slugify . }}",
 					{{end}}
                 ]
 			},
@@ -63,7 +63,7 @@ mutation UpdateDocuments {
       			],
                 tags: [
                     {{range .Metadata.Identification.Tags}}
-					"{{.}}",
+					"{{ Slugify . }}",
 					{{end}}
                 ]
 			},

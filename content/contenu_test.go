@@ -48,8 +48,8 @@ func (ats *ContentTestSuite) TestCreate() {
 	token := auth_claims_resp.Token
 	category := "a cool category"
 
-	a_tags := []string{"some", "cool", "things"}
-	b_tags := []string{"some", "ok", "chose"}
+	a_tags := []string{"some", "cool", "things", "two words"}
+	b_tags := []string{"some", "ok", "chose", "wise words"}
 
 	content := Content{
 		[]*Document{
