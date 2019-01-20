@@ -120,6 +120,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 	assert.True(err == nil)
 	assert.True(content_handles.Message == "")
 
+	// Retrieve Documents
 	retrieved_content, err := ats.Get(context.Background(), auth_claims_resp.Email, token, content_handles)
 
 	assert.True(err == nil)
@@ -129,6 +130,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
+	// Query
 	qry1 := NewQuery(utils.CategorizeDocument(category))
 	queried_content1, err := ats.Query(context.Background(), auth_claims_resp.Email, token, qry1)
 
@@ -139,6 +141,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
+	// Query with Tag(s)
 	limit := int32(1)
 	qry2 := NewQuery(utils.CategorizeDocument(category)).
 		WithTags("cool", "chose").
@@ -153,6 +156,28 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
+	// Update
+	content_to_update := queried_content2
+	for _, doc := range content_to_update.Documents {
+		doc.Niveau = Document_HIGH
+	}
+
+	updated_content_handles, err := ats.Update(context.Background(), auth_claims_resp.Email, token, content_to_update)
+
+	assert.True(err == nil)
+	assert.True(updated_content_handles.Message == "")
+
+	retrieved_updated_content, err := ats.Get(context.Background(), auth_claims_resp.Email, token, updated_content_handles)
+
+	assert.True(err == nil)
+	assert.True(len(retrieved_updated_content.Documents) > 0)
+	for _, doc := range retrieved_updated_content.Documents {
+		assert.True(len(doc.Body) > 0)
+		assert.True(len(doc.Metadata.Identification.Tags) > 0)
+		assert.True(doc.Niveau == Document_HIGH)
+	}
+
+	// Query Latest
 	queried_content3, err := ats.Latest(context.Background(), category, 0)
 
 	assert.True(err == nil)
@@ -162,6 +187,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
+	// Query by Tag(s)
 	queried_content4, err := ats.ByTag(context.Background(), category, 0, "cool", "chose")
 
 	assert.True(err == nil)
@@ -171,6 +197,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
+	// Query One
 	queried_content_one_document, err := ats.One(context.Background(), content_handles.ItemIds[1].Identifier)
 
 	assert.True(err == nil)
@@ -180,6 +207,7 @@ Ut tincidunt vestibulum lectus vitae semper. Vestibulum non quam diam. Maecenas 
 		assert.True(len(doc.Metadata.Identification.Tags) > 0)
 	}
 
+	// Delete
 	deleted_content_handles, err := ats.Delete(context.Background(), auth_claims_resp.Email, token, content_handles)
 
 	assert.True(err == nil)

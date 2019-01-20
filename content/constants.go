@@ -40,7 +40,7 @@ mutation CreateDocuments {
 {{end}}
 `
 	CONTENT_UPDATE_INPUT = `
-{{define "ContentInput"}}
+{{define "ContentUpdateInput"}}
 mutation UpdateDocuments {
 	handles: updateDocuments(
 		userId: "{{ .UserId }}",
