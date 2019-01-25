@@ -2,6 +2,7 @@ module github.com/KAMESTERY/middlewarekam
 
 require (
 	github.com/Machiel/slugify v1.0.1
+	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/derekparker/delve v1.1.0 // indirect
 	github.com/go-playground/locales v0.12.1 // indirect

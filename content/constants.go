@@ -248,13 +248,14 @@ const (
 	AFRICA_TOPIC      = "africa"
 	LANGUAGE_TOPIC    = "language"
 	EDUCATION_TOPIC   = "education"
+	BOGUS_TOPIC       = "generated"
 )
 
 var TOPICS = [...]string{
 	DEVELOPMENT_TOPIC,
-	HISTORY_TOPIC, 
+	HISTORY_TOPIC,
 	AFRICA_TOPIC,
 	LANGUAGE_TOPIC,
 	EDUCATION_TOPIC,
+	BOGUS_TOPIC,
 }
-

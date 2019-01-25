@@ -2,10 +2,11 @@ package content
 
 import (
 	"context"
+	"time"
+
 	"github.com/KAMESTERY/middlewarekam/utils"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"time"
 )
 
 var contentcontenu_logger = utils.NewLogger("contentcontenu")
@@ -190,10 +191,10 @@ func (m *ContentHandles) GetMessage() string {
 }
 
 type Document struct {
-	Title        string                `json:"title,omitempty"`
+	Title        string                `json:"title,omitempty" faker:"sentence"`
 	Slug         string                `json:"slug,omitempty"`
 	Publish      bool                  `json:"publish,omitempty"`
-	Body         string                `json:"body,omitempty"`
+	Body         string                `json:"body,omitempty" faker:"paragraph"`
 	Langue       Document_Langue       `json:"langue,omitempty"`
 	Niveau       Document_Niveau       `json:"niveau,omitempty"`
 	FiltreVisuel Document_FiltreVisuel `json:"filtre_visuel,omitempty"`
@@ -259,9 +260,9 @@ func (m *Document) GetMetadata() *MetaData {
 }
 
 type Media struct {
-	Name      string          `json:"name,omitempty"`
+	Name      string          `json:"name,omitempty" faker:"name"`
 	Categorie Media_Categorie `json:"categorie,omitempty"`
-	FileUrl   string          `json:"file_url,omitempty"`
+	FileUrl   string          `json:"file_url,omitempty" faker:"url"`
 	Metadata  *MetaData       `json:"metadata,omitempty"`
 }
 
@@ -376,11 +377,11 @@ func (m *TimeStamps) GetUpdated() *timestamp.Timestamp {
 
 type Query struct {
 	Partition string
-	User string
-	Created time.Time
-	Updated time.Time
-	Tags []string
-	Limit int32
+	User      string
+	Created   time.Time
+	Updated   time.Time
+	Tags      []string
+	Limit     int32
 }
 
 func NewQuery(partition string) *Query {
@@ -474,9 +475,9 @@ func (c *contentKamClient) Update(ctx context.Context, userId, token string, in 
 
 func (c *contentKamClient) Query(ctx context.Context, userId, token string, in *Query) (*Content, error) {
 	payload := struct {
-		UserId         string
-		Token          string
-		Query Query
+		UserId string
+		Token  string
+		Query  Query
 	}{
 		userId,
 		token,
@@ -525,7 +526,7 @@ func (c *contentKamClient) One(ctx context.Context, identifier string) (*Content
 		ContentHandles ContentHandles
 	}{
 		ContentHandles{
-			ItemIds: []*Identification {
+			ItemIds: []*Identification{
 				{
 					Identifier: identifier,
 				},
@@ -537,8 +538,8 @@ func (c *contentKamClient) One(ctx context.Context, identifier string) (*Content
 
 func (c *contentKamClient) Delete(ctx context.Context, userId, token string, in *ContentHandles) (*ContentHandles, error) {
 	payload := struct {
-		UserId  string
-		Token   string
+		UserId         string
+		Token          string
 		ContentHandles ContentHandles
 	}{
 		userId,
