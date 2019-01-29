@@ -26,6 +26,7 @@ func (c *contentKamClient) processPayload(ctx context.Context, tmpl, name, userI
 		resp_struct := &struct {
 			Data struct {
 				Handles []string `json:"handles"`
+				MediaHandles []string `json:"media_handles"`
 			} `json:"data"`
 		}{}
 		utils.DecodeJson(resp.Body, resp_struct)
@@ -35,6 +36,15 @@ func (c *contentKamClient) processPayload(ctx context.Context, tmpl, name, userI
 			out.ItemIds = append(out.ItemIds, &Identification{
 				UserId:     userId,
 				Identifier: handle,
+				Type: Document_HANDLE,
+			})
+		}
+		media_handles := resp_struct.Data.MediaHandles
+		for _, mhandle := range media_handles {
+			out.ItemIds = append(out.ItemIds, &Identification{
+				UserId:     userId,
+				Identifier: mhandle,
+				Type: Media_HANDLE,
 			})
 		}
 	}
@@ -78,6 +88,17 @@ func (c *contentKamClient) processQuery(ctx context.Context, tmpl, name string, 
 				Timestamps: &TimeStamps{},
 			},
 		}
+		media := &Media{
+			Name: item.Thing.Name,
+			Metadata: &MetaData{
+				Identification: &Identification{
+					Identifier: item.Thing.ThingId,
+					UserId:     item.Thing.UserId,
+					Tags: item.Thing.Tags,
+				},
+				Timestamps: &TimeStamps{},
+			},
+		}
 		for _, data := range item.Data {
 			if data.Key == "body" {
 				//doc.Body = data.Value
@@ -100,11 +121,22 @@ func (c *contentKamClient) processQuery(ctx context.Context, tmpl, name string, 
 				doc.Title = data.Value
 			} else if data.Key == "identifier" {
 				doc.Metadata.Identification.Identifier = data.Value
+			} else if data.Key == "categorie" {
+				i, _ := strconv.ParseInt(data.Value, 10, 32) // TODO: Revisit this!!!!
+				media.Categorie = Media_Categorie(i)
+			} else if data.Key == "fileurl" {
+				media.FileUrl = data.Value
 			} else {
 				doc.Metadata.Identification.Tags = append(doc.Metadata.Identification.Tags, data.Value)
+				media.Metadata.Identification.Tags = append(media.Metadata.Identification.Tags, data.Value)
 			}
 		}
-		out.Documents = append(out.Documents, doc)
+		if doc.Ok() {
+			out.Documents = append(out.Documents, doc)
+		}
+		if media.Ok() {
+			out.MediaItems = append(out.MediaItems, media)
+		}
 	}
 
 	return out, nil

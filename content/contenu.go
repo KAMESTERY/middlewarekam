@@ -183,6 +183,28 @@ func (m *ContentHandles) GetItemIds() []*Identification {
 	return nil
 }
 
+func (m *ContentHandles) GetDocs() *ContentHandles {
+	docHandles := new(ContentHandles)
+	for _, handle := range m.ItemIds {
+		if handle.Type == Document_HANDLE {
+			docHandles.ItemIds = append(docHandles.ItemIds, handle)
+		}
+	}
+	docHandles.Message = m.Message
+	return docHandles
+}
+
+func (m *ContentHandles) GetMedia() *ContentHandles {
+	mediaHandles := new(ContentHandles)
+	for _, handle := range m.ItemIds {
+		if handle.Type == Media_HANDLE {
+			mediaHandles.ItemIds = append(mediaHandles.ItemIds, handle)
+		}
+	}
+	mediaHandles.Message = m.Message
+	return mediaHandles
+}
+
 func (m *ContentHandles) GetMessage() string {
 	if m != nil {
 		return m.Message
@@ -199,6 +221,10 @@ type Document struct {
 	Niveau       Document_Niveau       `json:"niveau,omitempty"`
 	FiltreVisuel Document_FiltreVisuel `json:"filtre_visuel,omitempty"`
 	Metadata     *MetaData             `json:"metadata,omitempty"`
+}
+
+func (m *Document) Ok() bool {
+	return len(m.Title) > 0 && len(m.Slug) > 0
 }
 
 func (m *Document) Reset() { *m = Document{} }
@@ -266,6 +292,10 @@ type Media struct {
 	Metadata  *MetaData       `json:"metadata,omitempty"`
 }
 
+func (m *Media) Ok() bool {
+	return len(m.Name) > 0 && len(m.FileUrl) > 0
+}
+
 func (m *Media) Reset() { *m = Media{} }
 
 func (m *Media) GetName() string {
@@ -325,10 +355,28 @@ func (m *MetaData) GetM() map[string]*any.Any {
 	return nil
 }
 
+type Handle_type = int32
+
+const (
+	Document_HANDLE Handle_type = 0
+	Media_HANDLE    Handle_type = 1
+)
+
+var Handle_name = map[int32]string{
+	0: "DOCUMENT",
+	1: "MEDIA",
+}
+
+var Handle_value = map[string]int32{
+	"DOCUMENT": 0,
+	"MEDIA":    1,
+}
+
 type Identification struct {
-	UserId     string   `json:"user_id,omitempty"`
-	Identifier string   `json:"identifier,omitempty"`
-	Tags       []string `json:"tags,omitempty"`
+	UserId     string      `json:"user_id,omitempty"`
+	Identifier string      `json:"identifier,omitempty"`
+	Tags       []string    `json:"tags,omitempty"`
+	Type       Handle_type `json:"type,omitempty"`
 }
 
 func (m *Identification) Reset() { *m = Identification{} }
@@ -540,11 +588,13 @@ func (c *contentKamClient) Delete(ctx context.Context, userId, token string, in 
 	payload := struct {
 		UserId         string
 		Token          string
-		ContentHandles ContentHandles
+		DocHandles ContentHandles
+		MediaHandles ContentHandles
 	}{
 		userId,
 		token,
-		*in,
+		*in.GetDocs(),
+		*in.GetMedia(),
 	}
 	return c.processPayload(ctx, CONTENT_DELETE_INPUT, "ContentDeleteInput", userId, payload)
 }

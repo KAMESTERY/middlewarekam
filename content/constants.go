@@ -36,6 +36,28 @@ mutation CreateDocuments {
 			{{end}}
 		]
 	)
+	media_handles: createMediaItems(
+		userId: "{{ .UserId }}",
+		token: "{{ .Token }}",
+		media: [
+			{{range .Content.MediaItems}}
+			{
+      			name: "{{CategorizeDocument .Metadata.Identification.Identifier }}",
+				userId: "{{ .Metadata.Identification.UserId }}",
+				mediaId: "{{IdentifyDocument .Metadata.Identification.Identifier .Name }}",
+      			data: [
+        			["categorie", "{{ .Categorie }}"],
+        			["fileurl", "{{Slugify .FileUrl}}"]
+      			],
+                tags: [
+                    {{range .Metadata.Identification.Tags}}
+					"{{ Slugify . }}",
+					{{end}}
+                ]
+			},
+			{{end}}
+		]
+	)
 }
 {{end}}
 `
@@ -60,6 +82,28 @@ mutation UpdateDocuments {
         			["niveau", "{{ .Niveau }}"],
         			["filtre_visuel", "{{ .FiltreVisuel }}"],
         			["identifier", "{{ .Metadata.Identification.Identifier }}"]
+      			],
+                tags: [
+                    {{range .Metadata.Identification.Tags}}
+					"{{ Slugify . }}",
+					{{end}}
+                ]
+			},
+			{{end}}
+		]
+	)
+	media_handles: updateMediaItems(
+		userId: "{{ .UserId }}",
+		token: "{{ .Token }}",
+		media: [
+			{{range .Content.MediaItems}}
+			{
+      			name: "{{CategorizeDocument .Metadata.Identification.Identifier }}",
+				userId: "{{ .Metadata.Identification.UserId }}",
+				mediaId: "{{IdentifyDocument .Metadata.Identification.Identifier .Name }}",
+      			data: [
+        			["categorie", "{{ .Categorie }}"],
+        			["fileurl", "{{Slugify .FileUrl}}"]
       			],
                 tags: [
                     {{range .Metadata.Identification.Tags}}
@@ -232,7 +276,16 @@ mutation DeleteDocuments {
 		userId: "{{ .UserId }}",
 		token: "{{ .Token }}",
 		data: [
-			{{range .ContentHandles.ItemIds}}
+			{{range .DocHandles.ItemIds}}
+			["{{ToQualifiedCategory .Identifier }}", "{{ .Identifier }}"],
+			{{end}}
+		]
+	)
+	media_handles: deleteMediaItems(
+		userId: "{{ .UserId }}",
+		token: "{{ .Token }}",
+		data: [
+			{{range .MediaHandles.ItemIds}}
 			["{{ToQualifiedCategory .Identifier }}", "{{ .Identifier }}"],
 			{{end}}
 		]
