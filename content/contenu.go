@@ -153,6 +153,18 @@ type Content struct {
 	MediaItems []*Media    `json:"media_items,omitempty"`
 }
 
+func (m *Content) Ok() bool {
+	documentsOk := true
+	for _, doc := range m.Documents {
+		documentsOk = documentsOk && doc.Ok()
+	}
+	mediaOk := true
+	for _, md := range m.MediaItems {
+		mediaOk = mediaOk && md.Ok()
+	}
+	return len(m.Documents) > 0 && len(m.MediaItems) > 0 && documentsOk && mediaOk
+}
+
 func (m *Content) Reset() { *m = Content{} }
 
 func (m *Content) GetDocuments() []*Document {
