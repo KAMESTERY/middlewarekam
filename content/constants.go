@@ -36,6 +36,7 @@ mutation CreateDocuments {
 			{{end}}
 		]
 	)
+	{{if .Content.MediaItems}}
 	media_handles: createMediaItems(
 		userId: "{{ .UserId }}",
 		token: "{{ .Token }}",
@@ -58,6 +59,7 @@ mutation CreateDocuments {
 			{{end}}
 		]
 	)
+	{{ end }}
 }
 {{end}}
 `
@@ -92,6 +94,7 @@ mutation UpdateDocuments {
 			{{end}}
 		]
 	)
+	{{if .Content.MediaItems}}
 	media_handles: updateMediaItems(
 		userId: "{{ .UserId }}",
 		token: "{{ .Token }}",
@@ -114,6 +117,7 @@ mutation UpdateDocuments {
 			{{end}}
 		]
 	)
+	{{ end }}
 }
 {{end}}
 `
@@ -281,6 +285,7 @@ mutation DeleteDocuments {
 			{{end}}
 		]
 	)
+	{{if .MediaHandles.ItemIds}}
 	media_handles: deleteMediaItems(
 		userId: "{{ .UserId }}",
 		token: "{{ .Token }}",
@@ -290,6 +295,7 @@ mutation DeleteDocuments {
 			{{end}}
 		]
 	)
+	{{ end }}
 }
 {{end}}
 `

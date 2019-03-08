@@ -62,6 +62,9 @@ func (ats *ContentTestSuite) TestCreate() {
 		b_tags...,
 	)
 
+	//////// Verify Content
+	assert.True(content.Ok())
+
 	//////// API Calls and Assertions
 
 	content_handles, err := ats.ContentKamClient.Create(context.Background(), auth_claims_resp.Email, token, content)

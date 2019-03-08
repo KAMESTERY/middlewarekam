@@ -162,7 +162,7 @@ func (m *Content) Ok() bool {
 	for _, md := range m.MediaItems {
 		mediaOk = mediaOk && md.Ok()
 	}
-	return len(m.Documents) > 0 && len(m.MediaItems) > 0 && documentsOk && mediaOk
+	return len(m.Documents) > 0 && documentsOk && mediaOk
 }
 
 func (m *Content) Reset() { *m = Content{} }
@@ -236,7 +236,7 @@ type Document struct {
 }
 
 func (m *Document) Ok() bool {
-	return len(m.Title) > 0 && len(m.Slug) > 0
+	return len(m.Title) > 0 && len(m.Body) > 0
 }
 
 func (m *Document) Reset() { *m = Document{} }
