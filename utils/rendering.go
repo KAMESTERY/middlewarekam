@@ -17,6 +17,7 @@ var (
 		"ToNamespace":         ToNamespace,
 		"CategorizeDocument":  CategorizeDocument,
 		"Stringify":           Stringify,
+		"ToJsonString":        ToJsonString,
 	})
 )
 

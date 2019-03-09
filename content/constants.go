@@ -25,6 +25,7 @@ mutation CreateDocuments {
         			["langue", "{{ .Langue }}"],
         			["niveau", "{{ .Niveau }}"],
         			["filtre_visuel", "{{ .FiltreVisuel }}"],
+        			["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"],
         			["identifier", "{{ .Metadata.Identification.Identifier }}"]
       			],
                 tags: [
@@ -48,7 +49,8 @@ mutation CreateDocuments {
 				mediaId: "{{IdentifyDocument .Metadata.Identification.Identifier .Name }}",
       			data: [
         			["categorie", "{{ .Categorie }}"],
-        			["fileurl", "{{Slugify .FileUrl}}"]
+        			["fileurl", "{{Slugify .FileUrl}}"],
+					["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"]
       			],
                 tags: [
                     {{range .Metadata.Identification.Tags}}
@@ -83,6 +85,7 @@ mutation UpdateDocuments {
         			["langue", "{{ .Langue }}"],
         			["niveau", "{{ .Niveau }}"],
         			["filtre_visuel", "{{ .FiltreVisuel }}"],
+					["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"],
         			["identifier", "{{ .Metadata.Identification.Identifier }}"]
       			],
                 tags: [
@@ -106,7 +109,8 @@ mutation UpdateDocuments {
 				mediaId: "{{IdentifyDocument .Metadata.Identification.Identifier .Name }}",
       			data: [
         			["categorie", "{{ .Categorie }}"],
-        			["fileurl", "{{Slugify .FileUrl}}"]
+        			["fileurl", "{{Slugify .FileUrl}}"],
+					["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"]
       			],
                 tags: [
                     {{range .Metadata.Identification.Tags}}

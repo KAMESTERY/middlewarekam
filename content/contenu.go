@@ -339,8 +339,9 @@ func (m *Media) GetMetadata() *MetaData {
 }
 
 type MetaData struct {
-	Identification *Identification     `json:"identification,omitempty"`
-	Timestamps     *TimeStamps         `json:"timestamps,omitempty"`
+	Identification *Identification `json:"identification,omitempty"`
+	Timestamps     *TimeStamps     `json:"timestamps,omitempty"`
+	Extra          map[string]string `json:"extra,omitempty"`
 	M              map[string]*any.Any `json:"m,omitempty"`
 }
 

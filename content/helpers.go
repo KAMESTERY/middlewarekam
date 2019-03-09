@@ -5,6 +5,7 @@ import (
 	"github.com/KAMESTERY/middlewarekam/utils"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func (c *contentKamClient) processPayload(ctx context.Context, tmpl, name, userId string, payload interface{}) (*ContentHandles, error) {
@@ -100,7 +101,9 @@ func (c *contentKamClient) processQuery(ctx context.Context, tmpl, name string, 
 			},
 		}
 		for _, data := range item.Data {
+			isDocument := true
 			if data.Key == "body" {
+				isDocument = true
 				//doc.Body = data.Value
 				doc.Body, _ = utils.DecodeBase64(data.Value)
 			} else if data.Key == "filtre_visuel" {
@@ -122,13 +125,26 @@ func (c *contentKamClient) processQuery(ctx context.Context, tmpl, name string, 
 			} else if data.Key == "identifier" {
 				doc.Metadata.Identification.Identifier = data.Value
 			} else if data.Key == "categorie" {
+				isDocument = false
 				i, _ := strconv.ParseInt(data.Value, 10, 32) // TODO: Revisit this!!!!
 				media.Categorie = Media_Categorie(i)
 			} else if data.Key == "fileurl" {
 				media.FileUrl = data.Value
+			} else if data.Key == "extra" {
+				if len(data.Value) > 0 {
+					r := strings.NewReader(data.Value)
+					if isDocument {
+						_  = utils.DecodeJson(r, doc.Metadata.Extra)
+					} else {
+						_  = utils.DecodeJson(r, media.Metadata.Extra)
+					}
+				}
 			} else {
-				doc.Metadata.Identification.Tags = append(doc.Metadata.Identification.Tags, data.Value)
-				media.Metadata.Identification.Tags = append(media.Metadata.Identification.Tags, data.Value)
+				if isDocument {
+					doc.Metadata.Identification.Tags = append(doc.Metadata.Identification.Tags, data.Value)
+				} else {
+					media.Metadata.Identification.Tags = append(media.Metadata.Identification.Tags, data.Value)
+				}
 			}
 		}
 		if doc.Ok() {

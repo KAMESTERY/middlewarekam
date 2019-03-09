@@ -11,6 +11,7 @@ var contentContentGenLogger = utils.NewLogger("content_contentgen")
 func GenerateContent(email string, docCount int) (cnt *Content) {
 	cnt = &Content{}
 	tags := []string{"generated", "fake", "bogus", "fakealicious"}
+	extra := map[string]string{"bogus": "fuguezy"}
 
 	for i := 1; i <= docCount; i++ {
 		doc := &Document{}
@@ -25,6 +26,7 @@ func GenerateContent(email string, docCount int) (cnt *Content) {
 			doc.Metadata.Identification.UserId = email
 			doc.Metadata.Identification.Identifier = BOGUS_TOPIC
 			doc.Metadata.Identification.Tags = tags
+			doc.Metadata.Extra = extra
 			cnt.Documents = append(cnt.Documents, doc)
 			contentContentGenLogger.Debugf("Generated Document_%+v with Title: %+v", i, doc.Title)
 		}
@@ -38,6 +40,7 @@ func GenerateContent(email string, docCount int) (cnt *Content) {
 				img.Metadata.Identification.UserId = email
 				img.Metadata.Identification.Identifier = doc.Title
 				img.Metadata.Identification.Tags = tags
+				img.Metadata.Extra = extra
 				cnt.MediaItems = append(cnt.MediaItems, img)
 				contentContentGenLogger.Debugf("Generated Media_%+v%+v with Name: %+v", i, j, img.Name)
 			}
