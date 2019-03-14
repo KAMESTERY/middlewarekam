@@ -28,11 +28,13 @@ mutation CreateDocuments {
         			["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"],
         			["identifier", "{{ .Metadata.Identification.Identifier }}"]
       			],
+                {{if .Metadata.Identification.Tags}}
                 tags: [
                     {{range .Metadata.Identification.Tags}}
 					"{{ Slugify . }}",
 					{{end}}
                 ]
+				{{ end }}
 			},
 			{{end}}
 		]
@@ -52,11 +54,13 @@ mutation CreateDocuments {
         			["fileurl", "{{Slugify .FileUrl}}"],
 					["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"]
       			],
+				{{if .Metadata.Identification.Tags}}
                 tags: [
                     {{range .Metadata.Identification.Tags}}
 					"{{ Slugify . }}",
 					{{end}}
                 ]
+				{{ end }}
 			},
 			{{end}}
 		]
@@ -88,11 +92,13 @@ mutation UpdateDocuments {
 					["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"],
         			["identifier", "{{ .Metadata.Identification.Identifier }}"]
       			],
+                {{if .Metadata.Identification.Tags}}
                 tags: [
                     {{range .Metadata.Identification.Tags}}
 					"{{ Slugify . }}",
 					{{end}}
                 ]
+				{{ end }}
 			},
 			{{end}}
 		]
@@ -112,11 +118,13 @@ mutation UpdateDocuments {
         			["fileurl", "{{Slugify .FileUrl}}"],
 					["extra", "{{ .Metadata.Extra | ToJsonString | EncodeBase64 }}"]
       			],
+                {{if .Metadata.Identification.Tags}}
                 tags: [
                     {{range .Metadata.Identification.Tags}}
 					"{{ Slugify . }}",
 					{{end}}
                 ]
+				{{ end }}
 			},
 			{{end}}
 		]
