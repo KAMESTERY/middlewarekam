@@ -1,0 +1,13 @@
+CHANGES.txt
+MANIFEST.in
+Pipfile
+Pipfile.lock
+README.md
+README.txt
+development.ini
+environment.yml
+middlewarekam
+middlewarekam.egg-info
+middlewarekam.sqlite
+pytest.ini
+setup.py

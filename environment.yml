@@ -1,0 +1,13 @@
+name: MIDDLEWAREKAM
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+  - pip:
+      - cookiecutter
+      - pipenv
+
+# conda env create -f environment.yml # create environment
+# conda activate PRBRENV # activate the environment
+# conda deactivate
+

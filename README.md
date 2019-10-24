@@ -1,5 +1,5 @@
 # middlewarekam
-Kamestery Middleware Library
+Kamestery Middleware Component
 
 You can open the project in Gitpod, a free online dev evironment for GitHub:
 
