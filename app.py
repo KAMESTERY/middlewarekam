@@ -1,3 +1,10 @@
+import os.path
+import site
+
+# add `lib` subdirectory as a site packages directory, so our `main` module can load
+# third-party libraries.
+site.addsitedir(os.path.join(os.path.dirname(__file__), 'lib'))
+
 import logging
 import os
 from paste.deploy import loadapp

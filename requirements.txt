@@ -19,7 +19,7 @@ Jinja2==2.10.3
 jmespath==0.9.4
 Mako==1.1.0
 MarkupSafe==1.1.1
--e git+https://github.com/KAMESTERY/middlewarekam.git@0e3b8f3ecae1699309a665f2bb261432aa510a95#egg=middlewarekam
+-e git+https://github.com/KAMESTERY/middlewarekam.git@9a068ff8d442336739eb021cc09365ee27bea5c4#egg=middlewarekam
 PasteDeploy==2.0.1
 plaster==1.0
 plaster-pastedeploy==0.7
