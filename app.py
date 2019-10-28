@@ -38,7 +38,7 @@ def main():
     import os
     import uvicorn
     from multiprocessing import cpu_count
-    uvicorn.run(app, port=int(os.environ.get("PORT", 8000)), workers=cpu_count(), reload=True)
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 8000)), workers=cpu_count(), reload=True)
 
 if __name__ == "__main__":
     main()
