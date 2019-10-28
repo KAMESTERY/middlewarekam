@@ -34,6 +34,9 @@ def gql_query(request):
     response = Response(body=dict(data=result.data))
     response.headers.update({
         'Access-Control-Allow-Origin', '*', # Callable from ANY domains #TODO: Revisit this!!!!
+        'Access-Control-Allow-Methods', 'OPTIONS, POST',
+        'Access-Control-Allow-Headers', 'Authorization',
+        'Access-Control-Allow-Credentials', 'true',
         'Content-Type', 'application/json'
     })
 
