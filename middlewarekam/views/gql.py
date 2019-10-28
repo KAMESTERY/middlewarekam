@@ -12,6 +12,23 @@ def gql_view(request):
     return {}
 
 @view_config(
+    route_name='gql_query_options',
+    request_method='OPTIONS',
+    renderer='json'
+)
+def gql_query_options(request):
+    response = Response(body={})
+    response.headers.update({
+        'Access-Control-Allow-Origin', '*',  # Callable from ANY domains #TODO: Revisit this!!!!
+        'Access-Control-Allow-Methods', 'OPTIONS, POST',
+        'Access-Control-Allow-Headers', 'Authorization',
+        'Access-Control-Allow-Credentials', 'true',
+        'Content-Type', 'application/json'
+    })
+
+    return response
+
+@view_config(
     route_name='gql_query',
     request_method='POST',
     renderer='json'
