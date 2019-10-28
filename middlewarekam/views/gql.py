@@ -1,4 +1,5 @@
 from pyramid.view import view_config
+from pyramid.response import Response
 
 # from .schema import schema
 from ..services.schema import execute_query
@@ -30,4 +31,10 @@ def gql_query(request):
     else:
         result = dict(data=dict())
 
-    return dict(data=result.data)
+    response = Response(body=dict(data=result.data))
+    response.headers.update({
+        'Access-Control-Allow-Origin', '*', # Callable from ANY domains #TODO: Revisit this!!!!
+        'Content-Type', 'application/json'
+    })
+
+    return response
